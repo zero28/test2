@@ -113,7 +113,7 @@ public class Guild {
 	public void SetType(Player p, Player by, MemberType type) {}
 	
 
-	private boolean isLeader(Player p) {
+	public boolean isLeader(Player p) {
 		return isLeader(p.getName());
 	}
 	private boolean isLeader(String playerName) {
