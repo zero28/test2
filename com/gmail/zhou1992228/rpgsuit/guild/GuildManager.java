@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import com.gmail.zhou1992228.rpgsuit.RPGSuit;
 
@@ -23,6 +24,19 @@ public class GuildManager implements Runnable {
 			g.Save();
 		}
 		RPGSuit.SaveConfigToName(config, "guild.yml");
+	}
+	
+	public void Create(Player p, String name) {
+		// TODO
+	}
+
+	public Guild GetGuild(Player p) {
+		return GetGuild(p.getName());
+	}
+	
+	public Guild GetGuild(String playerName) {
+		// TODO
+		return null;
 	}
 	
 	private void Load() {

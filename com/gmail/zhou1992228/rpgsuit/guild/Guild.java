@@ -1,11 +1,15 @@
 package com.gmail.zhou1992228.rpgsuit.guild;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
+import com.gmail.zhou1992228.rpgsuit.util.Util;
 
 public class Guild {
 	enum MemberType {
@@ -40,7 +44,18 @@ public class Guild {
 	}
 	
 	public void update() {
-		
+		// TODO
+	}
+	
+	@SuppressWarnings("deprecation")
+	public ArrayList<Player> getOnlinePlayer() {
+		ArrayList<Player> result = new ArrayList<Player>();
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (isMember(p)) {
+				result.add(p);
+			}
+		}
+		return result;
 	}
 	
 	public String[] GetInfo() {
@@ -67,6 +82,8 @@ public class Guild {
 		}
 		apply_member.remove(playerName.toLowerCase());
 		by.sendMessage("你拒绝了 " + playerName + " 的加入申请");
+		Util.SendMessageIfOnline(playerName, 
+			by.getName() + " 拒绝了你加入 " + name + "的申请");
 	}
 	
 	public void KickBy(String p, Player by) {
@@ -82,7 +99,7 @@ public class Guild {
 			by.sendMessage("你不能将其他管理员踢出帮派");
 			return;
 		}
-		if (!havePlayer(p)) {
+		if (!isMember(p)) {
 			by.sendMessage("你的帮派没有这个玩家");
 			return;
 		}
@@ -90,40 +107,87 @@ public class Guild {
 		by.sendMessage("你已经将 " + p + " 踢出了帮派");
 	}
 	
-	public boolean havePlayer(Player p) {
-		return havePlayer(p.getName());
-	}
-	public boolean havePlayer(String playerName) {
-		return members.get(MemberType.MEMBER).contains(playerName.toLowerCase()) ||
-			   members.get(MemberType.MEMBER_V2).contains(playerName.toLowerCase()) ||
-			   members.get(MemberType.MANAGER).contains(playerName.toLowerCase()) ||
-			   members.get(MemberType.LEADER).contains(playerName.toLowerCase());
-	}
 	public void removePlayer(Player p) {
-		
 		removePlayer(p.getName());
 	}
+	
 	public void removePlayer(String playerName) {
 		members.get(MemberType.MEMBER).remove(playerName);
 		members.get(MemberType.MEMBER_V2).remove(playerName);
 		members.get(MemberType.MANAGER).remove(playerName);
 		members.get(MemberType.LEADER).remove(playerName);
 	}
-	public void AcceptBy(Player p, Player by) {}
-	public void SetType(Player p, Player by, MemberType type) {}
 	
-
+	public void AcceptBy(String playerName, Player by) {
+		if (this.isManager(by)) {
+			if (apply_member.contains(playerName)) {
+				apply_member.remove(playerName);
+				members.get(MemberType.MEMBER).add(playerName);
+				by.sendMessage("你已经同意了 " + playerName + " 的入会申请");
+				Util.SendMessageIfOnline(playerName, by.getName() + "已经同意了你的入会申请");
+			} else {
+				by.sendMessage("该玩家没有申请加入你的帮派");
+			}
+		} else {
+			by.sendMessage("你没有权限进行此操作");
+		}
+	}
+	
+	public MemberType GetType(String playerName) {
+		if (members.get(MemberType.MEMBER).contains(playerName)) return MemberType.MEMBER;
+		if (members.get(MemberType.MEMBER_V2).contains(playerName)) return MemberType.MEMBER_V2;
+		if (members.get(MemberType.MANAGER).contains(playerName)) return MemberType.MANAGER;
+		if (members.get(MemberType.LEADER).contains(playerName)) return MemberType.LEADER;
+		return null;
+	}
+	
+	public void SetType(String playerName, Player by, MemberType type) {
+		if (!this.isMember(playerName)) {
+			by.sendMessage("该玩家不属于你的帮派");
+			return;
+		}
+		MemberType command_type = GetType(by.getName());
+		switch (command_type) {
+			case MEMBER:
+			case MEMBER_V2:
+				by.sendMessage("你没有权限进行此操作");
+				return;
+			case MANAGER:
+				if (type == MemberType.LEADER || type == MemberType.MANAGER) {
+					by.sendMessage("你没有权限进行此操作");
+					return;
+				}
+			case LEADER:
+				if (type == MemberType.LEADER) {
+					by.sendMessage("你没有权限进行此操作");
+					return;
+				}
+				break;
+		}
+		this.removePlayer(playerName);
+		members.get(type).add(playerName);
+	}
+	
 	public boolean isLeader(Player p) {
 		return isLeader(p.getName());
 	}
-	private boolean isLeader(String playerName) {
+	public boolean isLeader(String playerName) {
 		return members.get(MemberType.LEADER).contains(playerName.toLowerCase());
 	}
-	private boolean isManager(Player p) {
+	public boolean isManager(Player p) {
 		return isManager(p.getName());
 	}
-	private boolean isManager(String playerName) {
+	public boolean isManager(String playerName) {
 		return members.get(MemberType.MANAGER).contains(playerName.toLowerCase()) ||
+			   members.get(MemberType.LEADER).contains(playerName.toLowerCase());
+	}
+	public boolean isMember(Player p) {
+		return isMember(p.getName());
+	}
+	public boolean isMember(String playerName) {
+		return members.get(MemberType.MEMBER).contains(playerName.toLowerCase()) ||
+			   members.get(MemberType.MEMBER_V2).contains(playerName.toLowerCase()) ||
+			   members.get(MemberType.MANAGER).contains(playerName.toLowerCase()) ||
 			   members.get(MemberType.LEADER).contains(playerName.toLowerCase());
 	}
 }

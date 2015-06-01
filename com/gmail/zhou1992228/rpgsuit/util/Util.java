@@ -3,6 +3,7 @@ package com.gmail.zhou1992228.rpgsuit.util;
 import java.util.Calendar;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -55,5 +56,19 @@ public class Util {
 	
 	static public boolean IsMobWorld(World w) {
 		return RPGSuit.mobEnableWorld.contains(w.getName());
+	}
+	
+	static public void SendMessageIfOnline(String playerName, String[] message) {
+		Player p = Bukkit.getPlayer(playerName);
+		if (p != null) {
+			p.sendMessage(message);
+		}
+	}
+
+	public static void SendMessageIfOnline(String playerName, String message) {
+		Player p = Bukkit.getPlayer(playerName);
+		if (p != null) {
+			p.sendMessage(message);
+		}
 	}
 }
