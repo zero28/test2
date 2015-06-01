@@ -3,6 +3,7 @@ package com.gmail.zhou1992228.rpgsuit.guild;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -48,5 +49,18 @@ public class GuildManager implements Runnable {
 	@Override
 	public void run() {
 		Save();
+		Update();
+		for (Guild g: guilds.values()) {
+			g.update();
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void Update() {
+		for (GuildSkill gs : GuildSkill.list.values()) {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				gs.resetPlayer(p);
+			}
+		}
 	}
 }

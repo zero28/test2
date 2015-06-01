@@ -41,6 +41,7 @@ import com.gmail.zhou1992228.rpgsuit.command.CommandRpgBuyMed;
 import com.gmail.zhou1992228.rpgsuit.command.CommandRpgMob;
 import com.gmail.zhou1992228.rpgsuit.command.CommandStoneBuy;
 import com.gmail.zhou1992228.rpgsuit.guild.GuildManager;
+import com.gmail.zhou1992228.rpgsuit.guild.GuildSkill;
 import com.gmail.zhou1992228.rpgsuit.item.ItemUtil;
 import com.gmail.zhou1992228.rpgsuit.listener.DamageListener;
 import com.gmail.zhou1992228.rpgsuit.listener.ExplodeArrowListener;
@@ -235,6 +236,7 @@ public class RPGSuit extends JavaPlugin {
 
 		MobUtil.init();
 		PlayerUtil.init();
+		GuildSkill.Init();
 		MonsterSkillBase.InitMonsterSkill();
 		RPGScoreBoard.manager = Bukkit.getScoreboardManager();
 		
@@ -243,6 +245,7 @@ public class RPGSuit extends JavaPlugin {
 		RewardUtil.Init();
 		SkillBase.InitSkills();
 		GuildManager.ins = new GuildManager(this);
+		this.getServer().getScheduler().scheduleSyncRepeatingTask(ins, GuildManager.ins, 10, 30 * 60 * 20);
 		flyingManager = new FlyingManager(this);
 		for (Player p : getServer().getOnlinePlayers()) {
 			RPGEntityManager.AddEntity(p);
