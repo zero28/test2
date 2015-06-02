@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.gmail.zhou1992228.mobarena.MobArenaIntegrator;
 import com.gmail.zhou1992228.rpgsuit.arena.ArenaManager;
 import com.gmail.zhou1992228.rpgsuit.command.CommandArena;
 import com.gmail.zhou1992228.rpgsuit.command.CommandCancelQuest;
@@ -126,7 +125,6 @@ public class RPGSuit extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
 		this.getServer().getPluginManager().registerEvents(new TreasureMapUseListener(), this);
-		this.getServer().getPluginManager().registerEvents(new MobArenaIntegrator(), this);
 		this.getServer().getPluginManager().registerEvents(new ExternalPluginListener(), this);
 		this.getServer().getPluginManager().registerEvents(new PetCatchListener(), this);
 		this.getServer().getPluginManager().registerEvents(new QuizMaster(this), this);
