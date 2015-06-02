@@ -62,12 +62,18 @@ public enum ParticleEffect {
 		return this.id;
 	}
 	
-	public static void CreateLine(ParticleEffect effect, Location l1, Location l2, int count) {
+	public static void CreateLine(ParticleEffect effect, Location l1, Location l2, int count_per_meter) {
 		Vector v = l2.subtract(l1.toVector()).toVector();
+		double dis = l1.distance(l2);
 		v.multiply(0.01);
 		for (int i = 0; i < 100; ++i) {
-			sendToLocation(effect, l1.add(v), 0, 0, 0, 0, count);
+			sendToLocation(effect, l1.add(v), 0, 0, 0, 0, (int) (dis * count_per_meter / 100 + 1));
 		}
+	}
+	
+	public static void CreateMockExplode(Location l1) {
+		ParticleEffect effect = ParticleEffect.HUGE_EXPLODE;
+		sendToLocation(effect, l1, 0, 0, 0, 0, 1);
 	}
 
 	public static void sendToPlayer(ParticleEffect effect, Player player,
