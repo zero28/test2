@@ -16,12 +16,15 @@ public class QuestThread extends Quest {
 		npcname = config.getString("quest." + name + ".npcname");
 		require_level = config.getInt("quest." + name + ".require_level", 0);
 		max_level = config.getInt("quest." + name + ".max_level", 30);
-		//Set<String> stages = config.getConfigurationSection("quest." + name + ".stages").getKeys(false);
+		@SuppressWarnings("unused")
+		Set<String> stages = config.getConfigurationSection("quest." + name + ".stages").getKeys(false);
 		Load();
 	}
 
 	@Override
-	public void onCancel(Player p) { }
+	public void onCancel(Player p) {
+		p.sendMessage("此任务无法取消");
+	}
 
 	@Override
 	public boolean tryComplete(String npcName, Player p) {
@@ -58,8 +61,6 @@ public class QuestThread extends Quest {
 
 	@Override
 	public void Load() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
