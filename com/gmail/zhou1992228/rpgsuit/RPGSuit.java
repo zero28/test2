@@ -68,6 +68,7 @@ import com.gmail.zhou1992228.rpgsuit.task.TaskMobValidator;
 import com.gmail.zhou1992228.rpgsuit.task.TaskParticleChecker;
 import com.gmail.zhou1992228.rpgsuit.task.TaskPlayerInfoUpdater;
 import com.gmail.zhou1992228.rpgsuit.util.RewardUtil;
+import com.gmail.zhou1992228.rpgsuit.util.StaticParticleEffect;
 import com.gmail.zhou1992228.rpgsuit.util.VIPUtil;
 import com.gmail.zhou1992228.treasuremap.TreasureMapUseListener;
 import com.gmail.zhou1992228.userinfo.UserInfo;
@@ -116,6 +117,7 @@ public class RPGSuit extends JavaPlugin {
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TaskPlayerInfoUpdater(), 10, updateTickScoreboard);
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TaskMinuteUpdater(), 10, 60 * 20);
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TaskParticleChecker(), 1, 1);
+		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new StaticParticleEffect(), 20, 20);
 		
 		this.getServer().getPluginManager().registerEvents(new DamageListener(), this);
 		this.getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
