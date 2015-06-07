@@ -25,6 +25,7 @@ import com.gmail.zhou1992228.rpgsuit.command.CommandGetDoubleExp;
 import com.gmail.zhou1992228.rpgsuit.command.CommandGetMap;
 import com.gmail.zhou1992228.rpgsuit.command.CommandGetRpgItem;
 import com.gmail.zhou1992228.rpgsuit.command.CommandGetRpgStone;
+import com.gmail.zhou1992228.rpgsuit.command.CommandGuild;
 import com.gmail.zhou1992228.rpgsuit.command.CommandITWNPC;
 import com.gmail.zhou1992228.rpgsuit.command.CommandInfoViewer;
 import com.gmail.zhou1992228.rpgsuit.command.CommandInlay;
@@ -68,7 +69,6 @@ import com.gmail.zhou1992228.rpgsuit.task.TaskMobValidator;
 import com.gmail.zhou1992228.rpgsuit.task.TaskParticleChecker;
 import com.gmail.zhou1992228.rpgsuit.task.TaskPlayerInfoUpdater;
 import com.gmail.zhou1992228.rpgsuit.util.RewardUtil;
-import com.gmail.zhou1992228.rpgsuit.util.StaticParticleEffect;
 import com.gmail.zhou1992228.rpgsuit.util.VIPUtil;
 import com.gmail.zhou1992228.treasuremap.TreasureMapUseListener;
 import com.gmail.zhou1992228.userinfo.UserInfo;
@@ -117,7 +117,7 @@ public class RPGSuit extends JavaPlugin {
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TaskPlayerInfoUpdater(), 10, updateTickScoreboard);
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TaskMinuteUpdater(), 10, 60 * 20);
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TaskParticleChecker(), 1, 1);
-		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new StaticParticleEffect(), 20, 20);
+		//this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new StaticParticleEffect(), 20, 20);
 		
 		this.getServer().getPluginManager().registerEvents(new DamageListener(), this);
 		this.getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
@@ -157,6 +157,7 @@ public class RPGSuit extends JavaPlugin {
 		this.getCommand("vipset").setExecutor(new VIPUtil());
 		this.getCommand("cancelquest").setExecutor(new CommandCancelQuest());
 		this.getCommand("viewinfo").setExecutor(new CommandInfoViewer());
+		this.getCommand("bp").setExecutor(new CommandGuild());
 
 		initStatic();
 		PlayerUtil.rank.Load();

@@ -5,14 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import com.gmail.zhou1992228.rpgsuit.util.Util;
+import com.gmail.zhou1992228.userinfo.UserInfoUtils;
 
 public class Guild {
-	enum MemberType {
+	
+	public enum MemberType {
 		LEADER,
 		MANAGER,
 		MEMBER_V2,
@@ -23,6 +26,9 @@ public class Guild {
 	private ConfigurationSection config;
 	private Map<MemberType, List<String>> members = new HashMap<MemberType, List<String>>();
 	private List<String> apply_member;
+	private Map<String, Integer> skill_list = new HashMap<String, Integer>();
+	private int money;
+	private int build;
 	
 	public Guild(ConfigurationSection c) {
 		config = c;
@@ -33,6 +39,11 @@ public class Guild {
 		members.put(MemberType.MEMBER_V2, config.getStringList("memberv2"));
 		members.put(MemberType.MEMBER, config.getStringList("member"));
 		apply_member = config.getStringList("apply_member");
+		for (GuildSkill gs : GuildSkill.list.values()) {
+			skill_list.put(gs.name(), config.getInt(gs.name(), 0));
+		}
+		money = config.getInt("money", 150000);
+		build = config.getInt("build", 0);
 	}
 	
 	public void Save() {
@@ -41,10 +52,39 @@ public class Guild {
 		config.set("memberv2", members.get(MemberType.MEMBER_V2));
 		config.set("member", members.get(MemberType.MEMBER));
 		config.set("apply_member", apply_member);
+		for (GuildSkill gs : GuildSkill.list.values()) {
+			config.set(gs.name(), skill_list.get(gs.name()));
+		}
+		config.set("skill_list", skill_list);
+		config.set("money", money);
+		config.set("build", build);
+	}
+	
+	public void withdrawMaintainCost() {
+		
+	}
+	
+	public void SetLeader(Player p) {
+		members.get(MemberType.LEADER).add(p.getName());
 	}
 	
 	public void update() {
-		// TODO
+		for (List<String> l : members.values()) {
+			for (String playerName : l) {
+				Player p = Bukkit.getServer().getPlayer(playerName);
+				if (p != null) {
+					UserInfoUtils.set(p, "公会", name);
+				}
+			}
+		}
+		applyGuildSkills();
+	}
+	public void applyGuildSkills() {
+		for (GuildSkill gs : GuildSkill.list.values()) {
+			for (Player p : getOnlinePlayer()) {
+				gs.applyToPlayer(p, this);
+			}
+		}
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -57,9 +97,37 @@ public class Guild {
 		}
 		return result;
 	}
+	public String applyList() {
+		return StringUtils.join(apply_member, ",");
+	}
+	public String GetName() {
+		return name;
+	}
+	public int getMemberCount() {
+		int sum = 0;
+		for (List<String> l : members.values()) {
+			sum += l.size();
+		}
+		return sum;
+	}
+	public String GetShortInfo() {
+		return "帮派名称: " + name + " 帮派人数:" + getMemberCount() + " 帮主: " + members.get(MemberType.LEADER).get(0);
+	}
 	
 	public String[] GetInfo() {
-		return null;
+		ArrayList<String> info = new ArrayList<String>();
+		info.add("帮主: " +  members.get(MemberType.LEADER).get(0));
+		info.add("金钱: " + money);
+		info.add("建设度: " + build);
+		info.add("帮派建筑:");
+		for (String s : skill_list.keySet()) {
+			info.add(s + ": " + skill_list.get(s) + " 级 " + GuildSkill.list.get(s).getDescription());
+		}
+		info.add("帮派成员: ");
+		info.add("长老: " + StringUtils.join(members.get(MemberType.MANAGER), ","));
+		info.add("精英: " + StringUtils.join(members.get(MemberType.MEMBER_V2), ","));
+		info.add("帮众: " + StringUtils.join(members.get(MemberType.MEMBER), ","));
+		return info.toArray(new String[info.size()]);
 	}
 	
 	public void Apply(Player p) {
@@ -84,6 +152,55 @@ public class Guild {
 		by.sendMessage("你拒绝了 " + playerName + " 的加入申请");
 		Util.SendMessageIfOnline(playerName, 
 			by.getName() + " 拒绝了你加入 " + name + "的申请");
+	}
+	
+	public void TryUpgrade(String skillName, Player by) {
+		if (this.isLeader(by)) {
+			if (!GuildSkill.list.containsKey(skillName)) {
+				by.sendMessage("没有这个设施");
+				return;
+			}
+			int lv = this.getSkillLevel(skillName);
+			if (this.hasCost(GuildSkill.list.get(skillName).upgradeCost(lv + 1))) {
+				this.takeCost(GuildSkill.list.get(skillName).upgradeCost(lv + 1));
+			} else {
+				by.sendMessage("没有足够的物品/金钱/材料进行升级");
+				by.sendMessage("需要 " + GuildSkill.list.get(skillName).upgradeCost(lv + 1));
+			}
+		} else {
+			by.sendMessage("你不是帮主！");
+		}
+	}
+	
+	public void takeCost(String cost) {
+		for (String c : cost.split(" ")) {
+			String name = c.split(":")[0];
+			int count = Integer.parseInt(c.split(":")[1]);
+			if (name.equals("金钱")) {
+				money -= count;
+			} else if (name.equals("建设度")) {
+				build -= count;
+			}
+		}
+	}
+
+	public boolean hasCost(String cost) {
+		for (String c : cost.split(" ")) {
+			String name = c.split(":")[0];
+			int count = Integer.parseInt(c.split(":")[1]);
+			if (name.equals("金钱")) {
+				if (count > money) {
+					return false;
+				}
+			} else if (name.equals("建设度")) {
+				if (count > build) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void KickBy(String p, Player by) {
@@ -121,10 +238,15 @@ public class Guild {
 	public void AcceptBy(String playerName, Player by) {
 		if (this.isManager(by)) {
 			if (apply_member.contains(playerName)) {
-				apply_member.remove(playerName);
-				members.get(MemberType.MEMBER).add(playerName);
-				by.sendMessage("你已经同意了 " + playerName + " 的入会申请");
-				Util.SendMessageIfOnline(playerName, by.getName() + "已经同意了你的入会申请");
+				if (GuildManager.ins.hasGuild(playerName)) {
+					by.sendMessage("该玩家已经加入另一个帮派了");
+					apply_member.remove(playerName);
+				} else {
+					apply_member.remove(playerName);
+					members.get(MemberType.MEMBER).add(playerName);
+					by.sendMessage("你已经同意了 " + playerName + " 的入会申请");
+					Util.SendMessageIfOnline(playerName, by.getName() + "已经同意了你的入会申请");
+				}
 			} else {
 				by.sendMessage("该玩家没有申请加入你的帮派");
 			}
@@ -162,6 +284,10 @@ public class Guild {
 					by.sendMessage("你没有权限进行此操作");
 					return;
 				}
+				if (by.getName().equalsIgnoreCase(playerName)) {
+					by.sendMessage("你在开玩笑吧？");
+					return;
+				}
 				break;
 		}
 		this.removePlayer(playerName);
@@ -189,5 +315,12 @@ public class Guild {
 			   members.get(MemberType.MEMBER_V2).contains(playerName.toLowerCase()) ||
 			   members.get(MemberType.MANAGER).contains(playerName.toLowerCase()) ||
 			   members.get(MemberType.LEADER).contains(playerName.toLowerCase());
+	}
+	
+	public void upgradeSkill(String skillName) {
+		skill_list.put(skillName, skill_list.get(skillName) + 1);
+	}
+	public int getSkillLevel(String skillName) {
+		return skill_list.get(skillName);
 	}
 }

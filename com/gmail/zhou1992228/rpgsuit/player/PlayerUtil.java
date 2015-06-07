@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.zhou1992228.rpgsuit.RPGSuit;
+import com.gmail.zhou1992228.rpgsuit.guild.GuildSkillAddExp;
 import com.gmail.zhou1992228.rpgsuit.item.ItemProperty;
 import com.gmail.zhou1992228.rpgsuit.mob.MobUtil;
 import com.gmail.zhou1992228.rpgsuit.task.TaskArmorValidator;
@@ -62,6 +63,7 @@ public class PlayerUtil {
 		if (UserInfoUtils.getInt(p, RPGSuit.DOUBLE_EXP_END_TIME) > RPGSuit.now()) {
 			exp = exp * 2;
 		}
+		exp *= 1 + 0.05 * UserInfoUtils.getInt(p, GuildSkillAddExp.KEY_EXP_MUTIPLIER);
 		addExp(p, exp);
 	}
 	
